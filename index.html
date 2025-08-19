@@ -70,7 +70,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlgVaMcDxWODK5oMEgZA-JA-BLHsHK2K8hMZvRaBK0Zz_RHXP91lRoPixllsA0f4jL/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjQgp6mUPnEr069rHVK-Pe3VsToW2wP3sWHRDAeJEsmiBugXB8wyMtLN1Clq8bNgSb/exec";
 
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
@@ -219,4 +219,97 @@
             tableContainer.appendChild(table);
         }
 
-        function filterTable
+        function filterTable() {
+            const term = searchInput.value.toLowerCase().trim();
+            if (!term) {
+                renderTable(fullTableData);
+                return;
+            }
+            const filteredData = fullTableData.filter(row => 
+                Object.values(row).some(value => 
+                    String(value).toLowerCase().includes(term)
+                )
+            );
+            renderTable(filteredData);
+        }
+
+        async function handleActionClick(e) {
+            const target = e.target.closest('.action-btn');
+            if (!target) return;
+
+            const { action, rowIndex, column, value } = target.dataset;
+
+            if (action === 'update') {
+                const confirmation = confirm(`Tem certeza que deseja marcar esta fatura como "${value}"?`);
+                if (!confirmation) return;
+
+                target.disabled = true;
+                target.textContent = '...';
+
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        body: JSON.stringify({ action, rowIndex, column, value }),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    
+                    // Atualiza a linha na tabela localmente para resposta instantânea
+                    const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
+                    if(itemIndex > -1) {
+                        fullTableData[itemIndex][column] = value;
+                        renderTable(fullTableData);
+                    } else {
+                        loadAndRenderTable(); // Recarrega tudo se não encontrar
+                    }
+
+                } catch (error) {
+                    alert('Falha ao atualizar: ' + error.message);
+                    target.disabled = false; // Reabilita o botão em caso de erro
+                    target.textContent = value; 
+                }
+            }
+        }
+        
+        invoiceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            const formData = new FormData(invoiceForm);
+            const invoiceData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(invoiceData),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await response.json();
+                
+                if (result.status !== 'success') throw new Error(result.message);
+
+                alert(result.message);
+                invoiceForm.reset();
+                loadAndRenderTable();
+                searchInput.value = '';
+            } catch (error) {
+                alert('Falha ao adicionar fatura: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg><span>Adicionar</span>`;
+            }
+        });
+
+        // Adiciona um único event listener na tabela para lidar com os cliques nos botões
+        tableContainer.addEventListener('click', handleActionClick);
+        searchInput.addEventListener('input', filterTable);
+        reloadBtn.addEventListener('click', loadAndRenderTable);
+        document.addEventListener('DOMContentLoaded', loadAndRenderTable);
+
+    </script>
+</body>
+</html>
