@@ -15,9 +15,8 @@
         .status-pago { background-color: #dcfce7; color: #166534; }
         .status-a-vencer { background-color: #ffedd5; color: #9a3412; }
         .status-analisada { background-color: #e0e7ff; color: #3730a3; }
+        .status-contestacao { background-color: #fef9c3; color: #854d0e; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* --- NOVOS ESTILOS PARA O CÍRCULO DE STATUS --- */
         .status-dot {
             display: inline-block;
             width: 0.6rem;
@@ -26,10 +25,9 @@
             margin-right: 0.5rem;
             vertical-align: middle;
         }
-        .dot-urgente { background-color: #ef4444; } /* Red-500 */
+        /* COR ALTERADA PARA LARANJA */
+        .dot-urgente { background-color: #f97316; } /* Orange-500 */
         .dot-atencao { background-color: #f59e0b; } /* Amber-500 */
-
-        /* ANIMAÇÃO DE PULSAR */
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.2); opacity: 0.7; }
@@ -46,7 +44,7 @@
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center justify-center gap-4">
                 <svg class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span>Controle de Faturamento</span>
-                 <a href="https://www.avatek.saitro.com" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
+                 <a href="https://www.avatek.saitro.com" target=" _blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
                     <img src="https://github.com/vmacagnani/api-pre-os/raw/main/logo-avatek-azul-laranja.svg" alt="Logo Avatek" class="h-10 sm:h-12">
                 </a>
             </h1>
@@ -55,17 +53,42 @@
 
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 mb-8">
              <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
-            <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="text" name="Operadora" placeholder="Operadora" required>
-                <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="number" step="0.01" name="Valor" placeholder="Valor (ex: 123.45)" required>
-                <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="date" name="Vencimento" required>
-                <select class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" name="Status" required>
-                    <option value="A vencer">A vencer</option>
-                    <option value="Pago">Pago</option>
-                </select>
-                <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="text" name="Periodo de Referencia" placeholder="Período (ex: AGO/2025)" required>
-                <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="text" name="Responsavel" placeholder="Responsável" required>
-                <button type="submit" id="submitBtn" class="sm:col-start-2 lg:col-start-4 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all duration-300 font-medium">
+            <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="operadora" class="block text-sm font-medium text-gray-700">Operadora</label>
+                    <input id="operadora" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required>
+                </div>
+                <div>
+                    <label for="valor" class="block text-sm font-medium text-gray-700">Valor</label>
+                    <input id="valor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" placeholder="123.45" required>
+                </div>
+                <div>
+                    <label for="vencimento" class="block text-sm font-medium text-gray-700">Data de Vencimento</label>
+                    <input id="vencimento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required>
+                        <option value="A vencer">A vencer</option>
+                        <option value="Pago">Pago</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="referencia" class="block text-sm font-medium text-gray-700">Período de Referência</label>
+                    <input id="referencia" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required>
+                </div>
+                <div>
+                    <label for="responsavel" class="block text-sm font-medium text-gray-700">Responsável</label>
+                    <input id="responsavel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Responsavel" required>
+                </div>
+                <div>
+                    <label for="contestacao" class="block text-sm font-medium text-gray-700">Contestação</label>
+                    <select id="contestacao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação">
+                        <option value="NÃO">Não</option>
+                        <option value="SIM">Sim</option>
+                    </select>
+                </div>
+                <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     <span>Adicionar</span>
                 </button>
@@ -83,7 +106,6 @@
                     </button>
                 </div>
             </div>
-
             <div id="loading" class="text-center py-10"><p>Carregando dados da API...</p></div>
             <div id="error" class="text-center py-10 hidden"><p class="text-red-600 font-semibold">Erro ao carregar os dados.</p></div>
             <div id="table-container" class="overflow-x-auto rounded-lg"></div>
@@ -92,9 +114,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzw8Tzy5Pd3GMESspCc6BO7xnP7h1TFM8aXG5O-DZ_k6Jf_0M71LkTEZir1ZjTV1K9V/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMSTdk1H5FHmQF9BaUb-tl-udq8DtDHxOELsNH4Hittd6596cXgQCQoQJ9gmHhyDnk/exec";
 
-        // --- ELEMENTOS DO DOM ---
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
         const reloadBtn = document.getElementById('reloadBtn');
@@ -105,7 +126,6 @@
         const submitBtn = document.getElementById('submitBtn');
         let fullTableData = [];
 
-        // --- FUNÇÕES DE LÓGICA E DADOS ---
         function handleData(data) {
             loadingDiv.classList.add('hidden');
             try {
@@ -138,13 +158,11 @@
             document.body.appendChild(script);
         }
         
-        // --- FUNÇÕES DE FORMATAÇÃO E ESTILO ---
         function formatCurrency(value) {
             const number = parseFloat(String(value));
             return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         
-        // FUNÇÃO ALTERADA para reconhecer dados antigos ("Paga") e novos ("Pago")
         function getStatusInfo(status) {
             const s = String(status || '').toLowerCase().trim();
             if (s === 'pago' || s === 'paga') {
@@ -153,7 +171,6 @@
             return { class: 'status-a-vencer', text: 'A vencer' };
         }
 
-        // FUNÇÃO ALTERADA para retornar HTML para o círculo e se o texto deve ser negrito
         function getVencimentoInfo(vencimentoStr, statusStr) {
             if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
                 return { dotHtml: '', isBold: false };
@@ -166,21 +183,19 @@
             const diffTime = dueDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays <= 2) { // Vencido, vence hoje, amanhã ou depois
+            if (diffDays <= 2) {
                 return { dotHtml: '<span class="status-dot dot-urgente pulse-animation"></span>', isBold: true };
             }
-            if (diffDays <= 5) { // Vence em 3 a 5 dias
+            if (diffDays <= 5) {
                 return { dotHtml: '<span class="status-dot dot-atencao"></span>', isBold: false };
             }
-            return { dotHtml: '', isBold: false }; // Normal
+            return { dotHtml: '', isBold: false };
         }
 
-        // --- FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO ---
         function renderTable(data) {
             if (data.length === 0) {
                 noResultsDiv.classList.remove('hidden');
-                tableContainer.innerHTML = '';
-                return;
+                tableContainer.innerHTML = ''; return;
             }
             noResultsDiv.classList.add('hidden');
             const headers = Object.keys(data[0] || {}).filter(h => h !== 'rowIndex');
@@ -209,8 +224,9 @@
                     if (header === 'Ações') {
                         td.innerHTML = `
                             <div class="flex gap-2">
-                                <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
-                                <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
+                                <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
+                                <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
+                                <button class="action-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM">Contestar</button>
                             </div>
                         `;
                     } else if (header === 'Status') {
@@ -219,19 +235,19 @@
                     } else if (header === 'Analisada') {
                         if (String(cellValue || '').toLowerCase() === 'sim') {
                             td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-analisada">Sim</span>`;
-                        } else {
-                            td.textContent = 'Não';
-                        }
+                        } else { td.textContent = 'Não'; }
+                    } else if (header === 'Contestação') {
+                        if (String(cellValue || '').toLowerCase() === 'sim') {
+                            td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-contestacao">Sim</span>`;
+                        } else { td.textContent = 'Não'; }
                     } else if (header === 'Valor') {
                         td.textContent = formatCurrency(cellValue);
-                    } else if (header === 'Vencimento') { // LÓGICA ALTERADA
+                    } else if (header === 'Vencimento') {
                         const date = new Date(cellValue);
                         const vencimentoInfo = getVencimentoInfo(cellValue, rowData.Status);
                         const formattedDate = date.getTime() ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' }) : '';
                         td.innerHTML = vencimentoInfo.dotHtml + formattedDate;
-                        if (vencimentoInfo.isBold) {
-                            td.classList.add('font-bold');
-                        }
+                        if (vencimentoInfo.isBold) td.classList.add('font-bold');
                     } else if (header === 'Inserido em') {
                          const date = new Date(cellValue);
                          td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
@@ -249,10 +265,7 @@
 
         function filterTable() {
             const term = searchInput.value.toLowerCase().trim();
-            if (!term) {
-                renderTable(fullTableData);
-                return;
-            }
+            if (!term) { renderTable(fullTableData); return; }
             const filteredData = fullTableData.filter(row => 
                 Object.values(row).some(value => 
                     String(value).toLowerCase().includes(term)
@@ -261,7 +274,6 @@
             renderTable(filteredData);
         }
         
-        // --- EVENT HANDLERS ---
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
             if (!target) return;
