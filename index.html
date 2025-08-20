@@ -25,9 +25,10 @@
             margin-right: 0.5rem;
             vertical-align: middle;
         }
-        /* COR ALTERADA PARA LARANJA */
-        .dot-urgente { background-color: #f97316; } /* Orange-500 */
-        .dot-atencao { background-color: #f59e0b; } /* Amber-500 */
+        /* NOVOS ESTILOS PARA OS DESTAQUES */
+        .dot-vencido { background-color: #ef4444; } /* Vermelho */
+        .dot-urgente { background-color: #f97316; } /* Laranja */
+        .dot-atencao { background-color: #f59e0b; } /* Amarelo */
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.2); opacity: 0.7; }
@@ -55,35 +56,35 @@
              <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
             <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label for="operadora" class="block text-sm font-medium text-gray-700">Operadora</label>
-                    <input id="operadora" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required>
+                    <label class="block text-sm font-medium text-gray-700">Operadora</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required>
                 </div>
                 <div>
-                    <label for="valor" class="block text-sm font-medium text-gray-700">Valor</label>
-                    <input id="valor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" placeholder="123.45" required>
+                    <label class="block text-sm font-medium text-gray-700">Valor</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" placeholder="123.45" required>
                 </div>
                 <div>
-                    <label for="vencimento" class="block text-sm font-medium text-gray-700">Data de Vencimento</label>
-                    <input id="vencimento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required>
+                    <label class="block text-sm font-medium text-gray-700">Data de Vencimento</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required>
                 </div>
                 <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required>
                         <option value="A vencer">A vencer</option>
                         <option value="Pago">Pago</option>
                     </select>
                 </div>
                 <div>
-                    <label for="referencia" class="block text-sm font-medium text-gray-700">Período de Referência</label>
-                    <input id="referencia" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required>
+                    <label class="block text-sm font-medium text-gray-700">Período de Referência</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required>
                 </div>
                 <div>
-                    <label for="responsavel" class="block text-sm font-medium text-gray-700">Responsável</label>
-                    <input id="responsavel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Responsavel" required>
+                    <label class="block text-sm font-medium text-gray-700">Responsável</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Responsavel" required>
                 </div>
                 <div>
-                    <label for="contestacao" class="block text-sm font-medium text-gray-700">Contestação</label>
-                    <select id="contestacao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação">
+                    <label class="block text-sm font-medium text-gray-700">Contestação</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação">
                         <option value="NÃO">Não</option>
                         <option value="SIM">Sim</option>
                     </select>
@@ -99,7 +100,7 @@
             <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
                 <h2 class="text-2xl font-semibold">Faturas Registradas</h2>
                 <div class="flex items-center gap-4">
-                    <input type="text" id="searchInput" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Buscar na tabela...">
+                    <input type="text" id="searchInput" class="block w-full rounded-md border-gray-300 shadow-sm" placeholder="Buscar na tabela...">
                     <button id="reloadBtn" title="Recarregar dados da planilha" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M20 4l-4 4M4 20l4-4"></path></svg>
                         <span>Recarregar</span>
@@ -171,6 +172,7 @@
             return { class: 'status-a-vencer', text: 'A vencer' };
         }
 
+        // LÓGICA ALTERADA para separar Vencido de Urgente
         function getVencimentoInfo(vencimentoStr, statusStr) {
             if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
                 return { dotHtml: '', isBold: false };
@@ -183,13 +185,16 @@
             const diffTime = dueDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays <= 2) {
+            if (diffDays < 0) { // Vencido
+                return { dotHtml: '<span class="status-dot dot-vencido pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 2) { // Urgente (vence hoje, amanhã ou depois)
                 return { dotHtml: '<span class="status-dot dot-urgente pulse-animation"></span>', isBold: true };
             }
-            if (diffDays <= 5) {
+            if (diffDays <= 5) { // Atenção (vence em 3 a 5 dias)
                 return { dotHtml: '<span class="status-dot dot-atencao"></span>', isBold: false };
             }
-            return { dotHtml: '', isBold: false };
+            return { dotHtml: '', isBold: false }; // Normal
         }
 
         function renderTable(data) {
@@ -242,6 +247,13 @@
                         } else { td.textContent = 'Não'; }
                     } else if (header === 'Valor') {
                         td.textContent = formatCurrency(cellValue);
+                    } else if (header === 'Periodo de Referencia') {
+                        const date = new Date(cellValue);
+                        if (date.getTime() && String(cellValue).includes('T')) {
+                            td.textContent = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace('. DE','');
+                        } else {
+                            td.textContent = cellValue;
+                        }
                     } else if (header === 'Vencimento') {
                         const date = new Date(cellValue);
                         const vencimentoInfo = getVencimentoInfo(cellValue, rowData.Status);
