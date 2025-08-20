@@ -12,10 +12,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         #table-container thead { background-color: #4f46e5; color: white; }
-        .status-paga { background-color: #dcfce7; color: #166534; }
-        .status-aguardando { background-color: #ffedd5; color: #9a3412; }
+        .status-pago { background-color: #dcfce7; color: #166534; }
+        .status-a-vencer { background-color: #ffedd5; color: #9a3412; }
         .status-analisada { background-color: #e0e7ff; color: #3730a3; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* NOVAS CLASSES PARA DESTAQUE DE VENCIMENTO */
+        .highlight-vencido { background-color: #fee2e2; font-weight: bold; color: #991b1b; }
+        .highlight-urgente { background-color: #fee2e2; font-weight: bold; color: #991b1b; }
+        .highlight-atencao { background-color: #fef3c7; color: #92400e; }
     </style>
 </head>
 <body class="bg-slate-100 text-gray-800">
@@ -39,8 +43,8 @@
                 <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="number" step="0.01" name="Valor" placeholder="Valor (ex: 123.45)" required>
                 <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="date" name="Vencimento" required>
                 <select class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" name="Status" required>
-                    <option value="Aguardando Pagamento">Aguardando Pagamento</option>
-                    <option value="Paga">Paga</option>
+                    <option value="A vencer">A vencer</option>
+                    <option value="Pago">Pago</option>
                 </select>
                 <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="text" name="Periodo de Referencia" placeholder="Período (ex: AGO/2025)" required>
                 <input class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="text" name="Responsavel" placeholder="Responsável" required>
@@ -71,7 +75,6 @@
     </div>
 
     <script>
-        // URL da API inserida
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzw8Tzy5Pd3GMESspCc6BO7xnP7h1TFM8aXG5O-DZ_k6Jf_0M71LkTEZir1ZjTV1K9V/exec";
 
         const tableContainer = document.getElementById('table-container');
@@ -121,12 +124,32 @@
             return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         
+        // FUNÇÃO ALTERADA
         function getStatusInfo(status) {
             const s = String(status || '').toLowerCase().trim();
-            if (s === 'paga') {
-                return { class: 'status-paga', text: 'Paga' };
+            if (s === 'pago') {
+                return { class: 'status-pago', text: 'Pago' };
             }
-            return { class: 'status-aguardando', text: 'Aguardando Pagamento' };
+            return { class: 'status-a-vencer', text: 'A vencer' };
+        }
+
+        // NOVA FUNÇÃO para o highlight de vencimento
+        function getVencimentoInfo(vencimentoStr, statusStr) {
+            if (String(statusStr || '').toLowerCase().trim() === 'pago') {
+                return ''; // Se já está pago, não há destaque
+            }
+            const today = new Date();
+            const dueDate = new Date(vencimentoStr);
+            today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas os dias
+            dueDate.setHours(0, 0, 0, 0);
+
+            const diffTime = dueDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) return 'highlight-vencido'; // Vencido
+            if (diffDays <= 2) return 'highlight-urgente'; // Vence hoje, amanhã ou depois
+            if (diffDays <= 5) return 'highlight-atencao'; // Vence em 3 a 5 dias
+            return ''; // Normal
         }
 
         function renderTable(data) {
@@ -156,13 +179,16 @@
                 const tr = document.createElement('tr');
                 headers.forEach(header => {
                     const td = document.createElement('td');
-                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
+                    // ALTERADO: Adiciona a classe de highlight na célula <td>
+                    const highlightClass = header === 'Vencimento' ? getVencimentoInfo(rowData.Vencimento, rowData.Status) : '';
+                    td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${highlightClass}`;
                     let cellValue = rowData[header];
                     
                     if (header === 'Ações') {
+                        // BOTÃO ALTERADO para enviar "Pago"
                         td.innerHTML = `
                             <div class="flex gap-2">
-                                <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Paga">Paga</button>
+                                <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
                                 <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
                             </div>
                         `;
@@ -179,7 +205,11 @@
                         td.textContent = formatCurrency(cellValue);
                     } else if (header === 'Vencimento' || header === 'Inserido em') {
                         const date = new Date(cellValue);
-                        td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
+                        // ALTERADO para mostrar DD/MM no vencimento
+                        const formatOptions = header === 'Vencimento' 
+                            ? { day: '2-digit', month: '2-digit', timeZone: 'UTC' }
+                            : { timeZone: 'UTC' };
+                        td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', formatOptions) : '';
                     } else {
                         td.textContent = cellValue;
                     }
