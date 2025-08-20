@@ -12,9 +12,10 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         #table-container thead { background-color: #4f46e5; color: white; }
-        .status-paga { background-color: #dcfce7; color: #166534; } /* Green */
-        .status-aguardando { background-color: #ffedd5; color: #9a3412; } /* Orange */
-        .status-analisada { background-color: #e0e7ff; color: #3730a3; } /* Indigo */
+        .status-paga { background-color: #dcfce7; color: #166534; }
+        .status-aguardando { background-color: #ffedd5; color: #9a3412; }
+        .status-analisada { background-color: #e0e7ff; color: #3730a3; }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body class="bg-slate-100 text-gray-800">
@@ -24,7 +25,7 @@
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center justify-center gap-4">
                 <svg class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span>Controle de Faturamento</span>
-                <a href="https://www.avatek.saitro.com" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
+                 <a href="https://www.avatek.saitro.com" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
                     <img src="https://github.com/vmacagnani/api-pre-os/raw/main/logo-avatek-azul-laranja.svg" alt="Logo Avatek" class="h-10 sm:h-12">
                 </a>
             </h1>
@@ -70,10 +71,8 @@
     </div>
 
     <script>
-        //const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjQgp6mUPnEr069rHVK-Pe3VsToW2wP3sWHRDAeJEsmiBugXB8wyMtLN1Clq8bNgSb/exec";
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjQgp6mUPnEr069rHVK-Pe3VsToW2wP3sWHRDAeJEsmiBugXB8wyMtLN1Clq8bNgSb/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3uINqy6jzlf4fP7H7SFTyqW8es_MRIuXJKuO-MllQ_AFrBO1xBKYZZo8qYyiPjisv/exec";
 
-        
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
         const reloadBtn = document.getElementById('reloadBtn');
@@ -104,10 +103,8 @@
             tableContainer.innerHTML = '';
             errorDiv.classList.add('hidden');
             noResultsDiv.classList.add('hidden');
-
             const oldScript = document.getElementById('jsonpScript');
             if (oldScript) oldScript.remove();
-            
             const script = document.createElement('script');
             script.id = 'jsonpScript';
             script.src = SCRIPT_URL + "?callback=handleData"; 
@@ -122,30 +119,12 @@
             const number = parseFloat(String(value));
             return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
-
-        function getOperatorInfo(name) {
-            const operator = String(name || '').toLowerCase();
-            const operators = {
-                'tim': { color: 'bg-blue-100 text-blue-800', logo: 'https://logo.clearbit.com/tim.com.br' },
-                'vivo': { color: 'bg-purple-100 text-purple-800', logo: 'https://logo.clearbit.com/vivo.com.br' },
-                'claro': { color: 'bg-red-100 text-red-800', logo: 'https://logo.clearbit.com/claro.com.br' },
-                'nlt': { color: 'bg-green-100 text-green-800', logo: 'https://logo.clearbit.com/nlt.com.br' },
-                'emnify': { color: 'bg-gray-200 text-gray-800', logo: 'https://logo.clearbit.com/emnify.com' },
-                'linksfield': { color: 'bg-pink-100 text-pink-800', logo: 'https://logo.clearbit.com/linksfield.com.br' },
-                'eseye': { color: 'bg-yellow-100 text-yellow-800', logo: 'https://logo.clearbit.com/eseye.com.br' }
-            };
-            const found = Object.keys(operators).find(key => operator.includes(key));
-            return found ? operators[found] : { color: 'bg-gray-100 text-gray-800', logo: null };
-        }
         
-        // ############ FUNÇÃO CORRIGIDA ############
         function getStatusInfo(status) {
             const s = String(status || '').toLowerCase().trim();
-            // A lógica agora verifica a igualdade exata para "paga"
             if (s === 'paga') {
                 return { class: 'status-paga', text: 'Paga' };
             }
-            // Qualquer outro valor será "Aguardando Pagamento"
             return { class: 'status-aguardando', text: 'Aguardando Pagamento' };
         }
 
@@ -156,13 +135,10 @@
                 return;
             }
             noResultsDiv.classList.add('hidden');
-
             const headers = Object.keys(data[0] || {}).filter(h => h !== 'rowIndex');
             headers.push('Ações');
-
             const table = document.createElement('table');
             table.className = 'min-w-full divide-y divide-gray-200';
-
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
             headers.forEach(headerText => {
@@ -173,7 +149,6 @@
             });
             thead.appendChild(headerRow);
             table.appendChild(thead);
-
             const tbody = document.createElement('tbody');
             tbody.className = 'bg-white divide-y divide-gray-200';
             data.forEach(rowData => {
@@ -190,15 +165,6 @@
                                 <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
                             </div>
                         `;
-                    } else if (header === 'Operadora') {
-                        const info = getOperatorInfo(cellValue);
-                        const logo = info.logo ? `<img src="${info.logo}" alt="" class="h-4 w-auto inline-block mr-1.5">` : '';
-                        td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.color}">${logo}<span>${cellValue}</span></span>`;
-                    } else if (header === 'Valor') {
-                        td.textContent = formatCurrency(cellValue);
-                    } else if (header === 'Vencimento' || header === 'Inserido em') {
-                        const date = new Date(cellValue);
-                        td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
                     } else if (header === 'Status') {
                         const info = getStatusInfo(cellValue);
                         td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.class}">${info.text}</span>`;
@@ -208,6 +174,11 @@
                         } else {
                             td.textContent = 'Não';
                         }
+                    } else if (header === 'Valor') {
+                        td.textContent = formatCurrency(cellValue);
+                    } else if (header === 'Vencimento' || header === 'Inserido em') {
+                        const date = new Date(cellValue);
+                        td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
                     } else {
                         td.textContent = cellValue;
                     }
@@ -216,61 +187,36 @@
                 tbody.appendChild(tr);
             });
             table.appendChild(tbody);
-
             tableContainer.innerHTML = '';
             tableContainer.appendChild(table);
-        }
-
-        function filterTable() {
-            const term = searchInput.value.toLowerCase().trim();
-            if (!term) {
-                renderTable(fullTableData);
-                return;
-            }
-            const filteredData = fullTableData.filter(row => 
-                Object.values(row).some(value => 
-                    String(value).toLowerCase().includes(term)
-                )
-            );
-            renderTable(filteredData);
         }
 
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
             if (!target) return;
-
-            const { action, rowIndex, column, value } = target.dataset;
-
-            if (action === 'update') {
-                const confirmation = confirm(`Tem certeza que deseja marcar esta fatura como "${value}"?`);
-                if (!confirmation) return;
-
-                target.disabled = true;
-                target.textContent = '...';
-
-                try {
-                    const response = await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        body: JSON.stringify({ action, rowIndex, column, value }),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
-                    const result = await response.json();
-                    if (result.status !== 'success') throw new Error(result.message);
-                    
-                    const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
-                    if(itemIndex > -1) {
-                        fullTableData[itemIndex][column] = value;
-                        renderTable(fullTableData);
-                    } else {
-                        loadAndRenderTable();
-                    }
-
-                } catch (error) {
-                    alert('Falha ao atualizar: ' + error.message);
-                    target.disabled = false;
-                    target.textContent = value; 
+            const { rowIndex, column, value } = target.dataset;
+            if (!confirm(`Tem certeza que deseja marcar esta fatura como "${value}"?`)) return;
+            target.disabled = true;
+            target.textContent = '...';
+            try {
+                // ############# INÍCIO DA MUDANÇA #############
+                // Usamos o modo 'no-cors' para o update também
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Diz ao navegador para "disparar e esquecer"
+                    body: JSON.stringify({ action: 'update', rowIndex, column, value }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                // ############# FIM DA MUDANÇA #############
+                const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
+                if(itemIndex > -1) {
+                    fullTableData[itemIndex][column] = value;
+                    renderTable(fullTableData); // Atualiza a tabela na hora
                 }
+            } catch (error) {
+                console.error('Falha ao atualizar:', error);
+                alert('Ocorreu uma falha ao atualizar. Por favor, recarregue a página.');
+                loadAndRenderTable();
             }
         }
         
@@ -278,27 +224,25 @@
             e.preventDefault();
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
-
-            const formData = new FormData(invoiceForm);
-            const invoiceData = Object.fromEntries(formData.entries());
-
             try {
-                const response = await fetch(SCRIPT_URL, {
+                const formData = new FormData(invoiceForm);
+                const invoiceData = Object.fromEntries(formData.entries());
+                // ############# INÍCIO DA MUDANÇA #############
+                // Usamos o modo 'no-cors' para contornar o erro de resposta do CORS
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    redirect: 'follow',
+                    mode: 'no-cors', // Diz ao navegador para "disparar e esquecer"
                     body: JSON.stringify(invoiceData),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                const result = await response.json();
-                
-                if (result.status !== 'success') throw new Error(result.message);
-
-                alert(result.message);
+                // ############# FIM DA MUDANÇA #############
+                alert('Fatura enviada para a planilha! A tabela será atualizada.');
                 invoiceForm.reset();
-                loadAndRenderTable();
+                setTimeout(loadAndRenderTable, 1000); // Dá 1s para a planilha processar
                 searchInput.value = '';
             } catch (error) {
-                alert('Falha ao adicionar fatura: ' + error.message);
+                console.error('Falha ao adicionar fatura:', error);
+                alert('Ocorreu uma falha no envio. Tente novamente.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg><span>Adicionar</span>`;
@@ -309,7 +253,6 @@
         searchInput.addEventListener('input', filterTable);
         reloadBtn.addEventListener('click', loadAndRenderTable);
         document.addEventListener('DOMContentLoaded', loadAndRenderTable);
-
     </script>
 </body>
 </html>
