@@ -171,6 +171,21 @@
             return { class: 'status-a-vencer', text: 'A vencer' };
         }
         
+        function getOperatorInfo(name) {
+            const operator = String(name || '').toLowerCase();
+            const providers = {
+                'vivo': { color: 'bg-purple-100 text-purple-800', logo: 'https://logo.clearbit.com/vivo.com.br' },
+                'claro': { color: 'bg-red-100 text-red-800', logo: 'https://logo.clearbit.com/claro.com.br' },
+                'tim': { color: 'bg-blue-100 text-blue-800', logo: 'https://logo.clearbit.com/tim.com.br' },
+                'nlt': { color: 'bg-green-100 text-green-800', logo: 'https://logo.clearbit.com/nlt.com' },
+                'linksfield': { color: 'bg-pink-100 text-pink-800', logo: 'https://logo.clearbit.com/linksfield.com.br' },
+                'emnify': { color: 'bg-gray-200 text-gray-800', logo: 'https://logo.clearbit.com/emnify.com' },
+                'eseye': { color: 'bg-yellow-100 text-yellow-800', logo: 'https://logo.clearbit.com/eseye.com' }
+            };
+            const foundKey = Object.keys(providers).find(key => operator.includes(key));
+            return foundKey ? providers[foundKey] : { color: 'bg-gray-100 text-gray-800', logo: null };
+        }
+        
         function getVencimentoInfo(vencimentoStr, statusStr) {
             if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
                 return { dotHtml: '', isBold: false };
@@ -238,15 +253,28 @@
                     td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${alignmentClass}`;
                     let cellValue = rowData[header];
                     
+                    // --- ÁREA ALTERADA PARA INCLUIR ÍCONES ---
                     if (header === 'Ações') {
                         td.innerHTML = `
                             <div class="flex gap-2 justify-center">
-                                <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
-                                <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
-                                <button class="action-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM">Contestar</button>
-                                <button class="action-btn text-xs bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded" data-action="delete" data-row-index="${rowData.rowIndex}">Excluir</button>
+                                <button title="Marcar como Pago" class="action-btn p-2 text-green-600 bg-green-100 hover:bg-green-200 rounded-full" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </button>
+                                <button title="Marcar como Analisada" class="action-btn p-2 text-indigo-600 bg-indigo-100 hover:bg-indigo-200 rounded-full" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                <button title="Marcar como Contestada" class="action-btn p-2 text-yellow-600 bg-yellow-100 hover:bg-yellow-200 rounded-full" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6H8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                                </button>
+                                <button title="Excluir Fatura" class="action-btn p-2 text-red-600 bg-red-100 hover:bg-red-200 rounded-full" data-action="delete" data-row-index="${rowData.rowIndex}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                             </div>
                         `;
+                    } else if (header === 'Operadora') {
+                        const info = getOperatorInfo(cellValue);
+                        const logoHtml = info.logo ? `<img src="${info.logo}" alt="${cellValue}" class="h-4 w-auto inline-block mr-2 align-middle">` : '';
+                        td.innerHTML = `<div class="flex items-center justify-start"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.color}">${logoHtml}<span class="align-middle">${cellValue}</span></span></div>`;
                     } else if (header === 'Status') {
                         const info = getStatusInfo(cellValue);
                         td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.class}">${info.text}</span>`;
@@ -302,45 +330,43 @@
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
             if (!target) return;
-            const { action, rowIndex, column, value } = target.dataset;
+            const { rowIndex, column, value, action } = target.dataset;
 
-            if (action === 'delete') {
-                if (!confirm('Tem certeza que deseja EXCLUIR esta fatura?\n\nEsta ação não pode ser desfeita.')) return;
-                target.disabled = true;
-                target.textContent = '...';
-                try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        body: JSON.stringify({ action: 'delete', rowIndex: rowIndex }),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
-                    target.closest('tr').remove();
-                } catch (error) {
-                    console.error('Falha ao excluir:', error);
-                    alert('Ocorreu uma falha ao excluir. Por favor, recarregue a página.');
-                    target.disabled = false;
-                    target.textContent = 'Excluir';
-                }
-            } else if (action === 'update') {
-                if (!confirm(`Tem certeza que deseja marcar esta fatura como "${value}"?`)) return;
-                target.disabled = true;
-                target.textContent = '...';
-                try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        body: JSON.stringify({ action, rowIndex, column, value }),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                    });
+            // Adapta a mensagem de confirmação para a ação de excluir
+            const confirmationMessage = action === 'delete'
+                ? 'Tem certeza que deseja EXCLUIR esta fatura?\n\nEsta ação não pode ser desfeita.'
+                : `Tem certeza que deseja marcar esta fatura como "${value}"?`;
+                
+            if (!confirm(confirmationMessage)) return;
+
+            target.disabled = true;
+            // Para ícones, não mudamos o texto, podemos adicionar uma classe para indicar o loading
+            target.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action, rowIndex, column, value }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+
+                if (action === 'delete') {
+                    target.closest('tr').classList.add('opacity-50'); // Esmaece a linha antes de remover
+                    setTimeout(() => {
+                        target.closest('tr').remove();
+                    }, 300);
+                } else {
                     const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
                     if(itemIndex > -1) {
                         fullTableData[itemIndex][column] = value;
-                        renderTable(fullTableData);
+                        renderTable(fullTableData); // Re-renderiza a tabela para mostrar a mudança
                     }
-                } catch (error) {
-                    console.error('Falha ao atualizar:', error);
-                    alert('Ocorreu uma falha ao atualizar. Por favor, recarregue a página.');
-                    loadAndRenderTable();
                 }
+            } catch (error) {
+                console.error('Falha na ação:', error);
+                alert('Ocorreu uma falha. Por favor, recarregue a página.');
+                loadAndRenderTable();
             }
         }
         
