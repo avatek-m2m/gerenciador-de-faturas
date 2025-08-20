@@ -71,7 +71,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztE4w5lMsFNm-cJXxYCqF9Y20O7y5My4HRObZO2duRz8Fv_Oyb7wV3QhWGzoqLtqms/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4XE34vUJ1U0umLYazQ8T9NH2mlHCR8C9HfUs8jK0XiRTmNRrrGGAK7QcUR89_Sqk4/exec";
 
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
@@ -190,8 +190,7 @@
             tableContainer.innerHTML = '';
             tableContainer.appendChild(table);
         }
-        
-        // ############ FUNÇÃO ADICIONADA DE VOLTA ############
+
         function filterTable() {
             const term = searchInput.value.toLowerCase().trim();
             if (!term) {
@@ -259,7 +258,7 @@
         });
 
         tableContainer.addEventListener('click', handleActionClick);
-        searchInput.addEventListener('input', filterTable); // Esta linha causava o erro
+        searchInput.addEventListener('input', filterTable);
         reloadBtn.addEventListener('click', loadAndRenderTable);
         document.addEventListener('DOMContentLoaded', loadAndRenderTable);
     </script>
