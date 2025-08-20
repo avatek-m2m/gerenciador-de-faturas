@@ -71,7 +71,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3uINqy6jzlf4fP7H7SFTyqW8es_MRIuXJKuO-MllQ_AFrBO1xBKYZZo8qYyiPjisv/exec";
+        const SCRIPT_URL = "COLE_AQUI_A_SUA_NOVA_URL_DA_API";
 
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
@@ -190,6 +190,21 @@
             tableContainer.innerHTML = '';
             tableContainer.appendChild(table);
         }
+        
+        // ############ FUNÇÃO ADICIONADA DE VOLTA ############
+        function filterTable() {
+            const term = searchInput.value.toLowerCase().trim();
+            if (!term) {
+                renderTable(fullTableData);
+                return;
+            }
+            const filteredData = fullTableData.filter(row => 
+                Object.values(row).some(value => 
+                    String(value).toLowerCase().includes(term)
+                )
+            );
+            renderTable(filteredData);
+        }
 
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
@@ -199,19 +214,16 @@
             target.disabled = true;
             target.textContent = '...';
             try {
-                // ############# INÍCIO DA MUDANÇA #############
-                // Usamos o modo 'no-cors' para o update também
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Diz ao navegador para "disparar e esquecer"
+                    mode: 'no-cors',
                     body: JSON.stringify({ action: 'update', rowIndex, column, value }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                // ############# FIM DA MUDANÇA #############
                 const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
                 if(itemIndex > -1) {
                     fullTableData[itemIndex][column] = value;
-                    renderTable(fullTableData); // Atualiza a tabela na hora
+                    renderTable(fullTableData);
                 }
             } catch (error) {
                 console.error('Falha ao atualizar:', error);
@@ -227,18 +239,15 @@
             try {
                 const formData = new FormData(invoiceForm);
                 const invoiceData = Object.fromEntries(formData.entries());
-                // ############# INÍCIO DA MUDANÇA #############
-                // Usamos o modo 'no-cors' para contornar o erro de resposta do CORS
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Diz ao navegador para "disparar e esquecer"
+                    mode: 'no-cors',
                     body: JSON.stringify(invoiceData),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                // ############# FIM DA MUDANÇA #############
                 alert('Fatura enviada para a planilha! A tabela será atualizada.');
                 invoiceForm.reset();
-                setTimeout(loadAndRenderTable, 1000); // Dá 1s para a planilha processar
+                setTimeout(loadAndRenderTable, 1000);
                 searchInput.value = '';
             } catch (error) {
                 console.error('Falha ao adicionar fatura:', error);
@@ -250,7 +259,7 @@
         });
 
         tableContainer.addEventListener('click', handleActionClick);
-        searchInput.addEventListener('input', filterTable);
+        searchInput.addEventListener('input', filterTable); // Esta linha causava o erro
         reloadBtn.addEventListener('click', loadAndRenderTable);
         document.addEventListener('DOMContentLoaded', loadAndRenderTable);
     </script>
