@@ -171,22 +171,6 @@
             return { class: 'status-a-vencer', text: 'A vencer' };
         }
         
-        // --- NOVA FUNÇÃO PARA BUSCAR LOGOS E CORES ---
-        function getOperatorInfo(name) {
-            const operator = String(name || '').toLowerCase();
-            const providers = {
-                'vivo': { color: 'bg-purple-100 text-purple-800', logo: 'https://logo.clearbit.com/vivo.com.br' },
-                'claro': { color: 'bg-red-100 text-red-800', logo: 'https://logo.clearbit.com/claro.com.br' },
-                'tim': { color: 'bg-blue-100 text-blue-800', logo: 'https://logo.clearbit.com/tim.com.br' },
-                'nlt': { color: 'bg-green-100 text-green-800', logo: 'https://logo.clearbit.com/nlt.com' },
-                'linksfield': { color: 'bg-pink-100 text-pink-800', logo: 'https://logo.clearbit.com/linksfield.com.br' },
-                'emnify': { color: 'bg-gray-200 text-gray-800', logo: 'https://logo.clearbit.com/emnify.com' },
-                'eseye': { color: 'bg-yellow-100 text-yellow-800', logo: 'https://logo.clearbit.com/eseye.com' }
-            };
-            const foundKey = Object.keys(providers).find(key => operator.includes(key));
-            return foundKey ? providers[foundKey] : { color: 'bg-gray-100 text-gray-800', logo: null };
-        }
-
         function getVencimentoInfo(vencimentoStr, statusStr) {
             if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
                 return { dotHtml: '', isBold: false };
@@ -217,6 +201,18 @@
                 tableContainer.innerHTML = ''; return;
             }
             noResultsDiv.classList.add('hidden');
+            
+            // --- NOVO: LÓGICA DE ALINHAMENTO ---
+            const columnAlignments = {
+                'Valor': 'text-right',
+                'Vencimento': 'text-center',
+                'Status': 'text-center',
+                'Inserido em': 'text-center',
+                'Analisada': 'text-center',
+                'Contestação': 'text-center',
+                'Ações': 'text-center'
+            };
+
             const headers = Object.keys(data[0] || {}).filter(h => h !== 'rowIndex');
             headers.push('Ações');
             const table = document.createElement('table');
@@ -225,34 +221,32 @@
             const headerRow = document.createElement('tr');
             headers.forEach(headerText => {
                 const th = document.createElement('th');
-                th.className = 'px-6 py-3 text-left text-xs font-medium uppercase tracking-wider';
+                const alignmentClass = columnAlignments[headerText] || 'text-left'; // Padrão é à esquerda
+                th.className = `px-6 py-3 text-xs font-medium uppercase tracking-wider ${alignmentClass}`;
                 th.textContent = headerText;
                 headerRow.appendChild(th);
             });
             thead.appendChild(headerRow);
             table.appendChild(thead);
+
             const tbody = document.createElement('tbody');
             tbody.className = 'bg-white divide-y divide-gray-200';
             data.forEach(rowData => {
                 const tr = document.createElement('tr');
                 headers.forEach(header => {
                     const td = document.createElement('td');
-                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
+                    const alignmentClass = columnAlignments[header] || 'text-left';
+                    td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${alignmentClass}`;
                     let cellValue = rowData[header];
                     
                     if (header === 'Ações') {
                         td.innerHTML = `
-                            <div class="flex gap-2">
+                            <div class="flex gap-2 justify-center">
                                 <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
                                 <button class="action-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim">Analisada</button>
                                 <button class="action-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM">Contestar</button>
                             </div>
                         `;
-                    // --- LÓGICA ALTERADA PARA EXIBIR O LOGO ---
-                    } else if (header === 'Operadora') {
-                        const info = getOperatorInfo(cellValue);
-                        const logoHtml = info.logo ? `<img src="${info.logo}" alt="${cellValue}" class="h-4 w-auto inline-block mr-2 align-middle">` : '';
-                        td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.color}">${logoHtml}<span class="align-middle">${cellValue}</span></span>`;
                     } else if (header === 'Status') {
                         const info = getStatusInfo(cellValue);
                         td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.class}">${info.text}</span>`;
