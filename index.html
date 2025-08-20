@@ -40,42 +40,205 @@
 <body class="bg-slate-100 text-gray-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8"></header>
-        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 mb-8"></div>
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center justify-center gap-4">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Controle de Faturamento</span>
+                 <a href="https://www.avatek.saitro.com" target=" _blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
+                    <img src="https://github.com/vmacagnani/api-pre-os/raw/main/logo-avatek-azul-laranja.svg" alt="Logo Avatek" class="h-10 sm:h-12">
+                </a>
+            </h1>
+            <p class="text-gray-600 mt-2">Gestão e consulta de faturas das operadoras.</p>
+        </header>
+
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+             <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
+            <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Operadora</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" placeholder="123.45" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Vencimento</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required>
+                        <option value="A vencer">A vencer</option>
+                        <option value="Pago">Pago</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Período de Referência</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Responsável</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Responsavel" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contestação</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação">
+                        <option value="NÃO">Não</option>
+                        <option value="SIM">Sim</option>
+                    </select>
+                </div>
+                <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    <span>Adicionar</span>
+                </button>
+            </form>
+        </div>
 
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                <h2 class="text-2xl font-semibold">Faturas Registradas</h2>
+                <div class="flex items-center gap-4">
+                    <input type="text" id="searchInput" class="block w-full rounded-md border-gray-300 shadow-sm" placeholder="Buscar na tabela...">
+                    <button id="reloadBtn" title="Recarregar dados da planilha" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M20 4l-4 4M4 20l4-4"></path></svg>
+                        <span>Recarregar</span>
+                    </button>
+                </div>
+            </div>
+            <div id="loading" class="text-center py-10"><p>Carregando dados da API...</p></div>
+            <div id="error" class="text-center py-10 hidden"><p class="text-red-600 font-semibold">Erro ao carregar os dados.</p></div>
             <div id="table-container" class="overflow-x-auto rounded-lg"></div>
+            <p id="no-results" class="text-center py-10 hidden text-gray-500">Nenhum resultado encontrado.</p>
         </div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1LIXRMlSlSjOjfeWIKWE5BwF8DEg5dtwrRxtnqzrasBLFrGIShc1TD3YAr48R9NBY/exec";
 
-        // --- Variáveis e Funções de Carregamento/Formatação (sem alterações) ---
         const tableContainer = document.getElementById('table-container');
-        // ... (resto das variáveis)
+        const searchInput = document.getElementById('searchInput');
+        const reloadBtn = document.getElementById('reloadBtn');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const noResultsDiv = document.getElementById('no-results');
+        const invoiceForm = document.getElementById('invoiceForm');
+        const submitBtn = document.getElementById('submitBtn');
         let fullTableData = [];
+
+        function handleData(data) {
+            loadingDiv.classList.add('hidden');
+            try {
+                if (data.status === 'error' || !Array.isArray(data)) {
+                     fullTableData = [];
+                     throw new Error(data.message || 'Formato de dados inválido.');
+                }
+                fullTableData = data.sort((a, b) => new Date(b.Vencimento) - new Date(a.Vencimento));
+                renderTable(fullTableData);
+            } catch (e) {
+                console.error('Erro ao processar dados:', e);
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function loadAndRenderTable() {
+            loadingDiv.classList.remove('hidden');
+            tableContainer.innerHTML = '';
+            errorDiv.classList.add('hidden');
+            noResultsDiv.classList.add('hidden');
+            const oldScript = document.getElementById('jsonpScript');
+            if (oldScript) oldScript.remove();
+            const script = document.createElement('script');
+            script.id = 'jsonpScript';
+            script.src = SCRIPT_URL + "?callback=handleData"; 
+            script.onerror = () => {
+                errorDiv.classList.remove('hidden');
+                loadingDiv.classList.add('hidden');
+            };
+            document.body.appendChild(script);
+        }
         
-        function handleData(data) { /* ... */ }
-        function loadAndRenderTable() { /* ... */ }
-        function formatCurrency(value) { /* ... */ }
-        function getStatusInfo(status) { /* ... */ }
-        function getVencimentoInfo(vencimentoStr, statusStr) { /* ... */ }
+        function formatCurrency(value) {
+            const number = parseFloat(String(value));
+            return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
+        function getStatusInfo(status) {
+            const s = String(status || '').toLowerCase().trim();
+            if (s === 'pago' || s === 'paga') {
+                return { class: 'status-pago', text: 'Pago' };
+            }
+            return { class: 'status-a-vencer', text: 'A vencer' };
+        }
+        
+        function getVencimentoInfo(vencimentoStr, statusStr) {
+            if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
+                return { dotHtml: '', isBold: false };
+            }
+            const today = new Date();
+            const dueDate = new Date(vencimentoStr);
+            today.setHours(0, 0, 0, 0);
+            dueDate.setHours(0, 0, 0, 0);
+
+            const diffTime = dueDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return { dotHtml: '<span class="status-dot dot-vencido pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 2) {
+                return { dotHtml: '<span class="status-dot dot-urgente pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 5) {
+                return { dotHtml: '<span class="status-dot dot-atencao"></span>', isBold: false };
+            }
+            return { dotHtml: '', isBold: false };
+        }
 
         function renderTable(data) {
-            // ... (início da função sem alterações) ...
+            if (data.length === 0) {
+                noResultsDiv.classList.remove('hidden');
+                tableContainer.innerHTML = ''; return;
+            }
+            noResultsDiv.classList.add('hidden');
             
-            headers.push('Ações');
-            // ...
+            const columnAlignments = {
+                'Valor': 'text-right',
+                'Vencimento': 'text-center',
+                'Status': 'text-center',
+                'Inserido em': 'text-center',
+                'Analisada': 'text-center',
+                'Contestação': 'text-center',
+                'Ações': 'text-center'
+            };
 
+            const headers = Object.keys(data[0] || {}).filter(h => h !== 'rowIndex');
+            headers.push('Ações');
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200';
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                const alignmentClass = columnAlignments[headerText] || 'text-left';
+                th.className = `px-6 py-3 text-xs font-medium uppercase tracking-wider ${alignmentClass}`;
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            tbody.className = 'bg-white divide-y divide-gray-200';
             data.forEach(rowData => {
                 const tr = document.createElement('tr');
                 headers.forEach(header => {
                     const td = document.createElement('td');
-                    // ... (lógica de alinhamento) ...
+                    const alignmentClass = columnAlignments[header] || 'text-left';
+                    td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${alignmentClass}`;
+                    let cellValue = rowData[header];
                     
                     if (header === 'Ações') {
-                        // --- BOTÃO DE EXCLUIR ADICIONADO ---
                         td.innerHTML = `
                             <div class="flex gap-2 justify-center">
                                 <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
@@ -84,65 +247,90 @@
                                 <button class="action-btn text-xs bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded" data-action="delete" data-row-index="${rowData.rowIndex}">Excluir</button>
                             </div>
                         `;
-                    } else if (/* ... resto da lógica de renderização ... */) {
-                        // ...
+                    } else if (header === 'Status') {
+                        const info = getStatusInfo(cellValue);
+                        td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.class}">${info.text}</span>`;
+                    } else if (header === 'Analisada') {
+                        if (String(cellValue || '').toLowerCase() === 'sim') {
+                            td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-analisada">Sim</span>`;
+                        } else { td.textContent = 'Não'; }
+                    } else if (header === 'Contestação') {
+                        if (String(cellValue || '').toLowerCase() === 'sim') {
+                            td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-contestacao">Sim</span>`;
+                        } else { td.textContent = 'Não'; }
+                    } else if (header === 'Valor') {
+                        td.textContent = formatCurrency(cellValue);
+                    } else if (header === 'Periodo de Referencia') {
+                        const date = new Date(cellValue);
+                        if (date.getTime() && String(cellValue).includes('T')) {
+                            td.textContent = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace('. DE','');
+                        } else {
+                            td.textContent = cellValue;
+                        }
+                    } else if (header === 'Vencimento') {
+                        const date = new Date(cellValue);
+                        const vencimentoInfo = getVencimentoInfo(cellValue, rowData.Status);
+                        const formattedDate = date.getTime() ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' }) : '';
+                        td.innerHTML = vencimentoInfo.dotHtml + formattedDate;
+                        if (vencimentoInfo.isBold) td.classList.add('font-bold');
+                    } else if (header === 'Inserido em') {
+                         const date = new Date(cellValue);
+                         td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
+                    } else {
+                        td.textContent = cellValue;
                     }
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
             });
-
-            // ... (final da função sem alterações) ...
+            table.appendChild(tbody);
+            tableContainer.innerHTML = '';
+            tableContainer.appendChild(table);
         }
 
+        function filterTable() {
+            const term = searchInput.value.toLowerCase().trim();
+            if (!term) { renderTable(fullTableData); return; }
+            const filteredData = fullTableData.filter(row => 
+                Object.values(row).some(value => 
+                    String(value).toLowerCase().includes(term)
+                )
+            );
+            renderTable(filteredData);
+        }
+        
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
             if (!target) return;
-
             const { action, rowIndex, column, value } = target.dataset;
 
-            // --- NOVA LÓGICA PARA A AÇÃO DE EXCLUIR ---
             if (action === 'delete') {
-                if (!confirm('Tem certeza que deseja EXCLUIR esta fatura?\n\nEsta ação não pode ser desfeita.')) {
-                    return;
-                }
-                
+                if (!confirm('Tem certeza que deseja EXCLUIR esta fatura?\n\nEsta ação não pode ser desfeita.')) return;
                 target.disabled = true;
                 target.textContent = '...';
-
                 try {
                     await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         body: JSON.stringify({ action: 'delete', rowIndex: rowIndex }),
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
-
-                    // Remove a linha da tabela para um feedback instantâneo
                     target.closest('tr').remove();
-
                 } catch (error) {
                     console.error('Falha ao excluir:', error);
                     alert('Ocorreu uma falha ao excluir. Por favor, recarregue a página.');
                     target.disabled = false;
                     target.textContent = 'Excluir';
                 }
-
             } else if (action === 'update') {
                 if (!confirm(`Tem certeza que deseja marcar esta fatura como "${value}"?`)) return;
-
                 target.disabled = true;
                 target.textContent = '...';
-
                 try {
                     await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         body: JSON.stringify({ action, rowIndex, column, value }),
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
-                    
-                    // Atualiza a tabela localmente para feedback instantâneo
                     const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
                     if(itemIndex > -1) {
                         fullTableData[itemIndex][column] = value;
@@ -156,9 +344,36 @@
             }
         }
         
-        // --- Restante do JavaScript (sem alterações) ---
-        // invoiceForm.addEventListener(...);
-        // ...
+        invoiceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            try {
+                const formData = new FormData(invoiceForm);
+                const invoiceData = Object.fromEntries(formData.entries());
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(invoiceData),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                alert('Fatura enviada para a planilha! A tabela será atualizada.');
+                invoiceForm.reset();
+                setTimeout(loadAndRenderTable, 1000);
+                searchInput.value = '';
+            } catch (error) {
+                console.error('Falha ao adicionar fatura:', error);
+                alert('Ocorreu uma falha no envio. Tente novamente.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg><span>Adicionar</span>`;
+            }
+        });
+
+        tableContainer.addEventListener('click', handleActionClick);
+        searchInput.addEventListener('input', filterTable);
+        reloadBtn.addEventListener('click', loadAndRenderTable);
+        document.addEventListener('DOMContentLoaded', loadAndRenderTable);
     </script>
 </body>
 </html>
