@@ -16,10 +16,27 @@
         .status-a-vencer { background-color: #ffedd5; color: #9a3412; }
         .status-analisada { background-color: #e0e7ff; color: #3730a3; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        /* NOVAS CLASSES PARA DESTAQUE DE VENCIMENTO */
-        .highlight-vencido { background-color: #fee2e2; font-weight: bold; color: #991b1b; }
-        .highlight-urgente { background-color: #fee2e2; font-weight: bold; color: #991b1b; }
-        .highlight-atencao { background-color: #fef3c7; color: #92400e; }
+
+        /* --- NOVOS ESTILOS PARA O CÍRCULO DE STATUS --- */
+        .status-dot {
+            display: inline-block;
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        .dot-urgente { background-color: #ef4444; } /* Red-500 */
+        .dot-atencao { background-color: #f59e0b; } /* Amber-500 */
+
+        /* ANIMAÇÃO DE PULSAR */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-gray-800">
@@ -77,6 +94,7 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzw8Tzy5Pd3GMESspCc6BO7xnP7h1TFM8aXG5O-DZ_k6Jf_0M71LkTEZir1ZjTV1K9V/exec";
 
+        // --- ELEMENTOS DO DOM ---
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
         const reloadBtn = document.getElementById('reloadBtn');
@@ -87,6 +105,7 @@
         const submitBtn = document.getElementById('submitBtn');
         let fullTableData = [];
 
+        // --- FUNÇÕES DE LÓGICA E DADOS ---
         function handleData(data) {
             loadingDiv.classList.add('hidden');
             try {
@@ -119,39 +138,44 @@
             document.body.appendChild(script);
         }
         
+        // --- FUNÇÕES DE FORMATAÇÃO E ESTILO ---
         function formatCurrency(value) {
             const number = parseFloat(String(value));
             return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         
-        // FUNÇÃO ALTERADA
+        // FUNÇÃO ALTERADA para reconhecer dados antigos ("Paga") e novos ("Pago")
         function getStatusInfo(status) {
             const s = String(status || '').toLowerCase().trim();
-            if (s === 'pago') {
+            if (s === 'pago' || s === 'paga') {
                 return { class: 'status-pago', text: 'Pago' };
             }
             return { class: 'status-a-vencer', text: 'A vencer' };
         }
 
-        // NOVA FUNÇÃO para o highlight de vencimento
+        // FUNÇÃO ALTERADA para retornar HTML para o círculo e se o texto deve ser negrito
         function getVencimentoInfo(vencimentoStr, statusStr) {
-            if (String(statusStr || '').toLowerCase().trim() === 'pago') {
-                return ''; // Se já está pago, não há destaque
+            if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
+                return { dotHtml: '', isBold: false };
             }
             const today = new Date();
             const dueDate = new Date(vencimentoStr);
-            today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas os dias
+            today.setHours(0, 0, 0, 0);
             dueDate.setHours(0, 0, 0, 0);
 
             const diffTime = dueDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays < 0) return 'highlight-vencido'; // Vencido
-            if (diffDays <= 2) return 'highlight-urgente'; // Vence hoje, amanhã ou depois
-            if (diffDays <= 5) return 'highlight-atencao'; // Vence em 3 a 5 dias
-            return ''; // Normal
+            if (diffDays <= 2) { // Vencido, vence hoje, amanhã ou depois
+                return { dotHtml: '<span class="status-dot dot-urgente pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 5) { // Vence em 3 a 5 dias
+                return { dotHtml: '<span class="status-dot dot-atencao"></span>', isBold: false };
+            }
+            return { dotHtml: '', isBold: false }; // Normal
         }
 
+        // --- FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO ---
         function renderTable(data) {
             if (data.length === 0) {
                 noResultsDiv.classList.remove('hidden');
@@ -179,13 +203,10 @@
                 const tr = document.createElement('tr');
                 headers.forEach(header => {
                     const td = document.createElement('td');
-                    // ALTERADO: Adiciona a classe de highlight na célula <td>
-                    const highlightClass = header === 'Vencimento' ? getVencimentoInfo(rowData.Vencimento, rowData.Status) : '';
-                    td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${highlightClass}`;
+                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
                     let cellValue = rowData[header];
                     
                     if (header === 'Ações') {
-                        // BOTÃO ALTERADO para enviar "Pago"
                         td.innerHTML = `
                             <div class="flex gap-2">
                                 <button class="action-btn text-xs bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago">Pago</button>
@@ -203,13 +224,17 @@
                         }
                     } else if (header === 'Valor') {
                         td.textContent = formatCurrency(cellValue);
-                    } else if (header === 'Vencimento' || header === 'Inserido em') {
+                    } else if (header === 'Vencimento') { // LÓGICA ALTERADA
                         const date = new Date(cellValue);
-                        // ALTERADO para mostrar DD/MM no vencimento
-                        const formatOptions = header === 'Vencimento' 
-                            ? { day: '2-digit', month: '2-digit', timeZone: 'UTC' }
-                            : { timeZone: 'UTC' };
-                        td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', formatOptions) : '';
+                        const vencimentoInfo = getVencimentoInfo(cellValue, rowData.Status);
+                        const formattedDate = date.getTime() ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' }) : '';
+                        td.innerHTML = vencimentoInfo.dotHtml + formattedDate;
+                        if (vencimentoInfo.isBold) {
+                            td.classList.add('font-bold');
+                        }
+                    } else if (header === 'Inserido em') {
+                         const date = new Date(cellValue);
+                         td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
                     } else {
                         td.textContent = cellValue;
                     }
@@ -235,7 +260,8 @@
             );
             renderTable(filteredData);
         }
-
+        
+        // --- EVENT HANDLERS ---
         async function handleActionClick(e) {
             const target = e.target.closest('.action-btn');
             if (!target) return;
