@@ -18,6 +18,10 @@
         .status-analisada { background-color: #e0e7ff; color: #3730a3; }
         .status-contestacao { background-color: #fef9c3; color: #854d0e; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Alinhamento das células ao topo para acomodar observações longas */
+        #table-container td { vertical-align: top; }
+
         .status-dot {
             display: inline-block;
             width: 0.6rem;
@@ -48,20 +52,28 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Estilo para a Obs editável */
+        
+        /* Estilo para a Obs editável (Textarea) */
         .obs-input {
-            border-bottom: 1px solid transparent;
+            border: 1px solid transparent;
             background: transparent;
             transition: all 0.2s;
             width: 100%;
-            padding: 2px 4px;
+            min-width: 220px; /* Garante espaço para leitura */
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            resize: vertical; /* Permite ajuste manual se necessário */
+            overflow: hidden;
+            display: block;
         }
-        .obs-input:hover { border-bottom-color: #ccc; }
+        .obs-input:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .obs-input:focus { 
-            border-bottom-color: #4f46e5; 
+            border-color: #4f46e5; 
             outline: none; 
             background: #fff;
-            box-shadow: 0 1px 0 #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
         }
     </style>
 </head>
@@ -270,7 +282,6 @@
             return { dotHtml: '', isBold: false };
         }
 
-        // FUNÇÃO PARA ATUALIZAR OBS QUANDO PERDER O FOCO
         async function updateObsField(input) {
             const rowIndex = input.dataset.rowIndex;
             const newValue = input.value;
@@ -289,7 +300,6 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
                 
-                // Atualiza o cache local
                 const item = fullTableData.find(d => d.rowIndex == rowIndex);
                 if (item) item.Obs = newValue;
                 
@@ -299,6 +309,12 @@
             } finally {
                 input.style.opacity = "1";
             }
+        }
+
+        // Função para auto-ajustar altura do textarea
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
         }
 
         function renderTable(data) {
@@ -337,8 +353,22 @@
                     if (header === 'Ações') {
                         td.innerHTML = `<div class="grid grid-cols-2 gap-1 w-20 mx-auto"><button title="Marcar como Pago" class="action-btn p-2 text-green-600 bg-green-100 hover:bg-green-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button><button title="Marcar como Analisada" class="action-btn p-2 text-indigo-600 bg-indigo-100 hover:bg-indigo-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button><button title="Marcar como Contestada" class="action-btn p-2 text-yellow-600 bg-yellow-100 hover:bg-yellow-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6H8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg></button><button title="Excluir Fatura" class="action-btn p-2 text-red-600 bg-red-100 hover:bg-red-200 rounded-lg" data-action="delete" data-row-index="${rowData.rowIndex}"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div>`;
                     } else if (header === 'Obs') {
-                        // TORNA A CÉLULA OBS EDITÁVEL
-                        td.innerHTML = `<input type="text" class="obs-input" value="${cellValue || ''}" data-row-index="${rowData.rowIndex}" onblur="updateObsField(this)">`;
+                        // TEXTAREA PARA OBSERVAÇÕES MAIORES
+                        td.className = `px-6 py-4 text-sm text-gray-700 ${alignmentClass}`;
+                        td.innerHTML = `
+                            <textarea 
+                                class="obs-input" 
+                                data-row-index="${rowData.rowIndex}" 
+                                onblur="updateObsField(this)"
+                                oninput="autoResize(this)"
+                                rows="2"
+                            >${cellValue || ''}</textarea>
+                        `;
+                        // Ajuste inicial da altura
+                        setTimeout(() => {
+                            const ta = td.querySelector('textarea');
+                            if(ta) autoResize(ta);
+                        }, 0);
                     } else if (header === 'Operadora') {
                         const info = getOperatorInfo(cellValue);
                         const logoHtml = info.logo ? `<img src="${info.logo}" alt="${cellValue}" class="h-4 w-auto inline-block mr-2 align-middle">` : '';
