@@ -18,44 +18,124 @@
         .status-analisada { background-color: #e0e7ff; color: #3730a3; }
         .status-contestacao { background-color: #fef9c3; color: #854d0e; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-right: 0.5rem; vertical-align: middle; }
+        .status-dot {
+            display: inline-block;
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
         .dot-vencido { background-color: #ef4444; }
         .dot-urgente { background-color: #f97316; }
         .dot-atencao { background-color: #f59e0b; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
-        .pulse-animation { animation: pulse 1.5s infinite; }
-        .loader { border: 5px solid #f3f4f6; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .input-obs-edit { border-bottom: 1px solid transparent; transition: all 0.2s; width: 100%; min-width: 150px; }
-        .input-obs-edit:focus { border-bottom-color: #4f46e5; outline: none; background: #f8fafc; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+        .loader {
+            border: 5px solid #f3f4f6;
+            border-top: 5px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Estilo para a Obs editável */
+        .obs-input {
+            border-bottom: 1px solid transparent;
+            background: transparent;
+            transition: all 0.2s;
+            width: 100%;
+            padding: 2px 4px;
+        }
+        .obs-input:hover { border-bottom-color: #ccc; }
+        .obs-input:focus { 
+            border-bottom-color: #4f46e5; 
+            outline: none; 
+            background: #fff;
+            box-shadow: 0 1px 0 #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-gray-800">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="container mx-auto p-4 sm-p-6 lg:p-8">
         <header class="text-center mb-8">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 flex items-center justify-center gap-4">
-                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span>Controle de Faturamento</span>
-                <a href="https://www.avatek.saitro.com" target="_blank" rel="noopener noreferrer">
+                 <a href="https://www.avatek.saitro.com" target=" _blank" rel="noopener noreferrer" class="inline-block hover:opacity-80 transition-opacity duration-300" title="Acesse a plataforma">
                     <img src="https://github.com/vmacagnani/api-pre-os/raw/main/logo-avatek-azul-laranja.svg" alt="Logo Avatek" class="h-10 sm:h-12">
                 </a>
             </h1>
+            <p class="text-gray-600 mt-2">Gestão e consulta de faturas das operadoras.</p>
         </header>
 
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
-            <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
-                <div><label class="block text-sm font-medium text-gray-700">Fornecedor</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required></div>
-                <div><label class="block text-sm font-medium text-gray-700">Nº Conta</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Nº Conta" required></div>
-                <div><label class="block text-sm font-medium text-gray-700">Tipo</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Tipo" required><option value="Operadora">Operadora</option><option value="Serviços">Serviços</option></select></div>
-                <div><label class="block text-sm font-medium text-gray-700">Valor</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" required></div>
-                <div><label class="block text-sm font-medium text-gray-700">Data de Vencimento</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required></div>
-                <div><label class="block text-sm font-medium text-gray-700">Período Referência</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required></div>
-                <div><label class="block text-sm font-medium text-gray-700">Responsável</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Responsavel"><option value="Vinícius">Vinícius</option><option value="Lucas">Lucas</option></select></div>
-                <div><label class="block text-sm font-medium text-gray-700">Observação</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Obs" placeholder="Notas adicionais"></div>
+             <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
+            <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Fornecedor</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nº Conta</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Nº Conta" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tipo</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Tipo" required>
+                        <option value="Operadora">Operadora</option>
+                        <option value="Serviços">Serviços</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" placeholder="123.45" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Vencimento</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required>
+                        <option value="A vencer">A vencer</option>
+                        <option value="Pago">Pago</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Período de Referência</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="AGO/2025" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Responsável</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Responsavel" required>
+                        <option value="Vinícius">Vinícius</option>
+                        <option value="Lucas">Lucas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contestação</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação">
+                        <option value="NÃO">Não</option>
+                        <option value="SIM">Sim</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Observação</label>
+                    <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Obs" placeholder="Ex: Boleto no e-mail">
+                </div>
                 <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     <span>Adicionar</span>
                 </button>
             </form>
@@ -66,14 +146,18 @@
                 <h2 class="text-2xl font-semibold">Faturas Registradas</h2>
                 <div class="flex items-center gap-4">
                     <input type="text" id="searchInput" class="block w-full rounded-md border-gray-300 shadow-sm" placeholder="Buscar na tabela...">
-                    <button id="reloadBtn" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M20 4l-4 4M4 20l4-4"></path></svg>
+                    <button id="reloadBtn" title="Recarregar dados da planilha" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M20 4l-4 4M4 20l4-4"></path></svg>
                         <span>Recarregar</span>
                     </button>
                 </div>
             </div>
 
-            <div id="loading" class="flex flex-col items-center justify-center py-10"><div class="loader"></div><p class="text-gray-600 mt-4">Carregando dados...</p></div>
+            <div id="loading" class="flex flex-col items-center justify-center py-10">
+                <div class="loader"></div>
+                <p class="text-gray-600 mt-4">Carregando dados...</p>
+            </div>
+            
             <div id="error" class="text-center py-10 hidden"><p class="text-red-600 font-semibold">Erro ao carregar os dados.</p></div>
             <div id="table-container" class="overflow-x-auto rounded-lg"></div>
             <p id="no-results" class="text-center py-10 hidden text-gray-500">Nenhum resultado encontrado.</p>
@@ -81,7 +165,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3sgTf0QPAMBi-Ry7e7I9e7YJYwvyGafRk8ZLORKcFcKun2o-BzW6PKrmUIVHSOh3p/exec"; // SUBSTITUA PELA SUA URL DO APPS SCRIPT
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3sgTf0QPAMBi-Ry7e7I9e7YJYwvyGafRk8ZLORKcFcKun2o-BzW6PKrmUIVHSOh3p/exec";
 
         const tableContainer = document.getElementById('table-container');
         const searchInput = document.getElementById('searchInput');
@@ -96,120 +180,231 @@
         function handleData(data) {
             loadingDiv.classList.add('hidden');
             try {
-                if (data.status === 'error' || !Array.isArray(data)) { throw new Error('Inválido'); }
+                if (data.status === 'error' || !Array.isArray(data)) {
+                     fullTableData = [];
+                     throw new Error(data.message || 'Formato de dados inválido.');
+                }
                 fullTableData = data.sort((a, b) => new Date(b.Vencimento) - new Date(a.Vencimento));
                 renderTable(fullTableData);
-            } catch (e) { errorDiv.classList.remove('hidden'); }
+            } catch (e) {
+                console.error('Erro ao processar dados:', e);
+                errorDiv.classList.remove('hidden');
+            }
         }
 
         function loadAndRenderTable() {
             loadingDiv.classList.remove('hidden');
+            tableContainer.innerHTML = '';
             errorDiv.classList.add('hidden');
+            noResultsDiv.classList.add('hidden');
             const oldScript = document.getElementById('jsonpScript');
             if (oldScript) oldScript.remove();
             const script = document.createElement('script');
             script.id = 'jsonpScript';
-            script.src = SCRIPT_URL + "?callback=handleData";
+            script.src = SCRIPT_URL + "?callback=handleData"; 
+            script.onerror = () => {
+                errorDiv.classList.remove('hidden');
+                loadingDiv.classList.add('hidden');
+            };
             document.body.appendChild(script);
         }
-
-        function formatCurrency(v) { return isNaN(parseFloat(v)) ? v : parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-
-        function getStatusInfo(s, d) {
-            const st = String(s || '').toLowerCase();
-            if (st.includes('pago')) return { class: 'status-pago', text: 'Pago' };
-            const today = new Date(); today.setHours(0,0,0,0);
-            const due = new Date(d);
-            return (due < today) ? { class: 'status-vencido', text: 'Vencido' } : { class: 'status-a-vencer', text: 'A vencer' };
+        
+        function formatCurrency(value) {
+            const number = parseFloat(String(value));
+            return isNaN(number) ? value : number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
-
+        
+        function getStatusInfo(status, vencimentoStr) {
+            const s = String(status || '').toLowerCase().trim();
+            if (s === 'pago' || s === 'paga') {
+                return { class: 'status-pago', text: 'Pago' };
+            }
+            const today = new Date();
+            const dueDate = new Date(vencimentoStr);
+            today.setHours(0, 0, 0, 0);
+            if (dueDate < today) {
+                return { class: 'status-vencido', text: 'Vencido' };
+            }
+            return { class: 'status-a-vencer', text: 'A vencer' };
+        }
+        
         function getOperatorInfo(name) {
-            const op = String(name || '').toLowerCase();
+            const operator = String(name || '').toLowerCase();
             const providers = {
                 'vivo': { color: 'bg-purple-100 text-purple-800', logo: 'https://img.logo.dev/vivo.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
                 'claro': { color: 'bg-red-100 text-red-800', logo: 'https://img.logo.dev/claro.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
-                'tim': { color: 'bg-blue-100 text-blue-800', logo: 'https://img.logo.dev/tim.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' }
+                'tim': { color: 'bg-blue-100 text-blue-800', logo: 'https://img.logo.dev/tim.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'nlt': { color: 'bg-green-100 text-green-800', logo: 'https://img.logo.dev/nlt.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'linksfield': { color: 'bg-pink-100 text-pink-800', logo: 'https://img.logo.dev/linksfield.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'emnify': { color: 'bg-gray-200 text-gray-800', logo: 'https://img.logo.dev/emnify.com?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'eseye': { color: 'bg-yellow-100 text-yellow-800', logo: 'https://img.logo.dev/eseye.com?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'agendor': { color: 'bg-purple-100 text-purple-800', logo: 'https://img.logo.dev/agendor.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'freshdesk': { color: 'bg-green-100 text-green-800', logo: 'https://img.logo.dev/freshdesk.com?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'pluga': { color: 'bg-blue-100 text-blue-800', logo: 'https://img.logo.dev/pluga.co?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'melhorenvio': { color: 'bg-blue-100 text-blue-800', logo: 'https://img.logo.dev/melhorenvio.com.br?token=pk_FGnHpYa7RVyBaPNWay1WYg' },
+                'habitual': { color: 'bg-blue-100 text-blue-800', logo: 'https://img.logo.dev/hssol.com.br/?token=pk_FGnHpYa7RVyBaPNWay1WYg' }
             };
-            const key = Object.keys(providers).find(k => op.includes(k));
-            return key ? providers[key] : { color: 'bg-gray-100 text-gray-800', logo: null };
+            const foundKey = Object.keys(providers).find(key => operator.includes(key));
+            return foundKey ? providers[foundKey] : { color: 'bg-gray-100 text-gray-800', logo: null };
+        }
+        
+        function getVencimentoInfo(vencimentoStr, statusStr) {
+            if (String(statusStr || '').toLowerCase().trim().includes('pago')) {
+                return { dotHtml: '', isBold: false };
+            }
+            const today = new Date();
+            const dueDate = new Date(vencimentoStr);
+            today.setHours(0, 0, 0, 0);
+            dueDate.setHours(0, 0, 0, 0);
+            const diffTime = dueDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) {
+                return { dotHtml: '<span class="status-dot dot-vencido pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 2) {
+                return { dotHtml: '<span class="status-dot dot-urgente pulse-animation"></span>', isBold: true };
+            }
+            if (diffDays <= 5) {
+                return { dotHtml: '<span class="status-dot dot-atencao"></span>', isBold: false };
+            }
+            return { dotHtml: '', isBold: false };
         }
 
-        function renderTable(data) {
-            if (data.length === 0) { noResultsDiv.classList.remove('hidden'); tableContainer.innerHTML = ''; return; }
-            noResultsDiv.classList.add('hidden');
+        // FUNÇÃO PARA ATUALIZAR OBS QUANDO PERDER O FOCO
+        async function updateObsField(input) {
+            const rowIndex = input.dataset.rowIndex;
+            const newValue = input.value;
+            input.style.opacity = "0.5";
             
-            const headers = Object.keys(data[0]).filter(h => h !== 'rowIndex');
-            headers.push('Ações');
-
-            const table = document.createElement('table');
-            table.className = 'min-w-full divide-y divide-gray-200';
-            
-            let thead = `<thead><tr>`;
-            headers.forEach(h => thead += `<th class="px-6 py-3 text-xs font-medium uppercase text-center">${h === 'Operadora' ? 'Fornecedor' : h}</th>`);
-            thead += `</tr></thead>`;
-            
-            let tbody = `<tbody class="bg-white divide-y divide-gray-200">`;
-            data.forEach(row => {
-                tbody += `<tr>`;
-                headers.forEach(h => {
-                    let val = row[h];
-                    let content = val;
-                    
-                    if (h === 'Ações') {
-                        content = `<div class="flex gap-1 justify-center">
-                            <button class="action-btn p-2 text-green-600 bg-green-50 rounded" data-action="update" data-row-index="${row.rowIndex}" data-column="Status" data-value="Pago">✔</button>
-                            <button class="action-btn p-2 text-red-600 bg-red-50 rounded" data-action="delete" data-row-index="${row.rowIndex}">✘</button>
-                        </div>`;
-                    } else if (h === 'Obs') {
-                        content = `<input type="text" class="input-obs-edit px-2 py-1 text-xs" value="${val || ''}" data-row-index="${row.rowIndex}" data-column="Obs" onblur="updateField(this)">`;
-                    } else if (h === 'Operadora') {
-                        const info = getOperatorInfo(val);
-                        content = `<span class="px-2 py-1 rounded-full text-xs ${info.color}">${val}</span>`;
-                    } else if (h === 'Status') {
-                        const info = getStatusInfo(val, row.Vencimento);
-                        content = `<span class="px-2 py-1 rounded-full text-xs ${info.class}">${info.text}</span>`;
-                    } else if (h === 'Valor') {
-                        content = formatCurrency(val);
-                    } else if (h === 'Vencimento' || h === 'Inserido em') {
-                        const d = new Date(val);
-                        content = d.getTime() ? d.toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : val;
-                    }
-                    
-                    tbody += `<td class="px-4 py-3 text-sm text-center border-b">${content}</td>`;
-                });
-                tbody += `</tr>`;
-            });
-            tbody += `</tbody>`;
-            
-            table.innerHTML = thead + tbody;
-            tableContainer.innerHTML = '';
-            tableContainer.appendChild(table);
-        }
-
-        async function updateField(el) {
-            const { rowIndex, column } = el.dataset;
-            const val = el.value;
-            el.style.opacity = '0.5';
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify({ action: 'update', rowIndex, column, value: val }),
+                    body: JSON.stringify({ 
+                        action: 'update', 
+                        rowIndex: rowIndex, 
+                        column: 'Obs', 
+                        value: newValue 
+                    }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                const idx = fullTableData.findIndex(i => i.rowIndex == rowIndex);
-                if(idx > -1) fullTableData[idx][column] = val;
-            } catch (e) { alert('Erro ao salvar'); }
-            el.style.opacity = '1';
+                
+                // Atualiza o cache local
+                const item = fullTableData.find(d => d.rowIndex == rowIndex);
+                if (item) item.Obs = newValue;
+                
+            } catch (e) {
+                console.error("Erro ao salvar obs:", e);
+                alert("Erro ao salvar observação.");
+            } finally {
+                input.style.opacity = "1";
+            }
         }
 
-        async function handleActionClick(e) {
-            const btn = e.target.closest('.action-btn');
-            if (!btn) return;
-            const { rowIndex, column, value, action } = btn.dataset;
-            if(!confirm('Confirmar ação?')) return;
+        function renderTable(data) {
+            if (data.length === 0) {
+                noResultsDiv.classList.remove('hidden');
+                tableContainer.innerHTML = ''; return;
+            }
+            noResultsDiv.classList.add('hidden');
             
-            btn.disabled = true;
+            const columnAlignments = { 'Valor': 'text-right', 'Vencimento': 'text-center', 'Status': 'text-center', 'Inserido em': 'text-center', 'Analisada': 'text-center', 'Contestação': 'text-center', 'Ações': 'text-center', 'Tipo': 'text-center' };
+            const headers = Object.keys(data[0] || {}).filter(h => h !== 'rowIndex');
+            headers.push('Ações');
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200';
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                const alignmentClass = columnAlignments[headerText] || 'text-left';
+                th.className = `px-6 py-3 text-xs font-medium uppercase tracking-wider ${alignmentClass}`;
+                th.textContent = headerText === 'Operadora' ? 'Fornecedor' : headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            tbody.className = 'bg-white divide-y divide-gray-200';
+            data.forEach(rowData => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    const alignmentClass = columnAlignments[header] || 'text-left';
+                    td.className = `px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${alignmentClass}`;
+                    let cellValue = rowData[header];
+                    
+                    if (header === 'Ações') {
+                        td.innerHTML = `<div class="grid grid-cols-2 gap-1 w-20 mx-auto"><button title="Marcar como Pago" class="action-btn p-2 text-green-600 bg-green-100 hover:bg-green-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Status" data-value="Pago"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button><button title="Marcar como Analisada" class="action-btn p-2 text-indigo-600 bg-indigo-100 hover:bg-indigo-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Analisada" data-value="Sim"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button><button title="Marcar como Contestada" class="action-btn p-2 text-yellow-600 bg-yellow-100 hover:bg-yellow-200 rounded-lg" data-action="update" data-row-index="${rowData.rowIndex}" data-column="Contestação" data-value="SIM"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6H8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg></button><button title="Excluir Fatura" class="action-btn p-2 text-red-600 bg-red-100 hover:bg-red-200 rounded-lg" data-action="delete" data-row-index="${rowData.rowIndex}"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div>`;
+                    } else if (header === 'Obs') {
+                        // TORNA A CÉLULA OBS EDITÁVEL
+                        td.innerHTML = `<input type="text" class="obs-input" value="${cellValue || ''}" data-row-index="${rowData.rowIndex}" onblur="updateObsField(this)">`;
+                    } else if (header === 'Operadora') {
+                        const info = getOperatorInfo(cellValue);
+                        const logoHtml = info.logo ? `<img src="${info.logo}" alt="${cellValue}" class="h-4 w-auto inline-block mr-2 align-middle">` : '';
+                        td.innerHTML = `<div class="flex items-center justify-start"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.color}">${logoHtml}<span class="align-middle">${cellValue}</span></span></div>`;
+                    } else if (header === 'Status') {
+                        const info = getStatusInfo(cellValue, rowData.Vencimento);
+                        td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${info.class}">${info.text}</span>`;
+                    } else if (header === 'Analisada') {
+                        if (String(cellValue || '').toLowerCase() === 'sim') {
+                            td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-analisada">Sim</span>`;
+                        } else { td.textContent = 'Não'; }
+                    } else if (header === 'Contestação') {
+                        if (String(cellValue || '').toLowerCase() === 'sim') {
+                            td.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold status-contestacao">Sim</span>`;
+                        } else { td.textContent = 'Não'; }
+                    } else if (header === 'Valor') {
+                        td.textContent = formatCurrency(cellValue);
+                    } else if (header === 'Periodo de Referencia') {
+                        const date = new Date(cellValue);
+                        if (date.getTime() && String(cellValue).includes('T')) {
+                            td.textContent = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace('. DE','');
+                        } else {
+                            td.textContent = cellValue;
+                        }
+                    } else if (header === 'Vencimento') {
+                        const date = new Date(cellValue);
+                        const vencimentoInfo = getVencimentoInfo(cellValue, rowData.Status);
+                        const formattedDate = date.getTime() ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' }) : '';
+                        td.innerHTML = vencimentoInfo.dotHtml + formattedDate;
+                        if (vencimentoInfo.isBold) td.classList.add('font-bold');
+                    } else if (header === 'Inserido em') {
+                         const date = new Date(cellValue);
+                         td.textContent = date.getTime() ? date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
+                    } else {
+                        td.textContent = cellValue;
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            tableContainer.innerHTML = '';
+            tableContainer.appendChild(table);
+        }
+
+        function filterTable() {
+            const term = searchInput.value.toLowerCase().trim();
+            if (!term) { renderTable(fullTableData); return; }
+            const filteredData = fullTableData.filter(row => 
+                Object.values(row).some(value => 
+                    String(value).toLowerCase().includes(term)
+                )
+            );
+            renderTable(filteredData);
+        }
+        
+        async function handleActionClick(e) {
+            const target = e.target.closest('.action-btn');
+            if (!target) return;
+            const { rowIndex, column, value, action } = target.dataset;
+            const confirmationMessage = action === 'delete'
+                ? 'Tem certeza que deseja EXCLUIR esta fatura?\n\nEsta ação não pode ser desfeita.'
+                : `Tem certeza que deseja marcar esta fatura como "${value}"?`;
+            if (!confirm(confirmationMessage)) return;
+            target.disabled = true;
+            target.classList.add('opacity-50', 'cursor-not-allowed');
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -217,37 +412,53 @@
                     body: JSON.stringify({ action, rowIndex, column, value }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                setTimeout(loadAndRenderTable, 500);
-            } catch (e) { alert('Erro'); btn.disabled = false; }
+                if (action === 'delete') {
+                    target.closest('tr').classList.add('opacity-50');
+                    setTimeout(() => { target.closest('tr').remove(); }, 300);
+                } else {
+                    const itemIndex = fullTableData.findIndex(item => item.rowIndex == rowIndex);
+                    if(itemIndex > -1) {
+                        fullTableData[itemIndex][column] = value;
+                        renderTable(fullTableData);
+                    }
+                }
+            } catch (error) {
+                console.error('Falha na ação:', error);
+                alert('Ocorreu uma falha. Por favor, recarregue a página.');
+                loadAndRenderTable();
+            }
         }
-
+        
         invoiceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            const formData = new FormData(invoiceForm);
-            const data = Object.fromEntries(formData.entries());
+            submitBtn.textContent = 'Enviando...';
             try {
+                const formData = new FormData(invoiceForm);
+                const invoiceData = Object.fromEntries(formData.entries());
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify(data),
+                    body: JSON.stringify(invoiceData),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
+                alert('Fatura enviada para a planilha! A tabela será atualizada.');
                 invoiceForm.reset();
                 setTimeout(loadAndRenderTable, 1000);
-            } catch (e) { alert('Erro ao enviar'); }
-            submitBtn.disabled = false;
-        });
-
-        searchInput.addEventListener('input', () => {
-            const term = searchInput.value.toLowerCase();
-            const filtered = fullTableData.filter(row => Object.values(row).some(v => String(v).toLowerCase().includes(term)));
-            renderTable(filtered);
+                searchInput.value = '';
+            } catch (error) {
+                console.error('Falha ao adicionar fatura:', error);
+                alert('Ocorreu uma falha no envio. Tente novamente.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg><span>Adicionar</span>`;
+            }
         });
 
         tableContainer.addEventListener('click', handleActionClick);
+        searchInput.addEventListener('input', filterTable);
         reloadBtn.addEventListener('click', loadAndRenderTable);
-        window.onload = loadAndRenderTable;
+        document.addEventListener('DOMContentLoaded', loadAndRenderTable);
     </script>
 </body>
 </html>
