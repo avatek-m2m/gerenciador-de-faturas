@@ -33,11 +33,13 @@
         .dot-vencido { background-color: #ef4444; }
         .dot-urgente { background-color: #f97316; }
         .dot-atencao { background-color: #f59e0b; }
+        
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.2); opacity: 0.7; }
         }
         .pulse-animation { animation: pulse 1.5s infinite; }
+
         .loader {
             border: 5px solid #f3f4f6;
             border-top: 5px solid #4f46e5;
@@ -79,7 +81,7 @@
         </header>
 
         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 mb-8">
-             <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
+            <h2 class="text-2xl font-semibold mb-4">Adicionar Nova Fatura</h2>
             <form id="invoiceForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div><label class="block text-sm font-medium text-gray-700">Fornecedor</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Operadora" required></div>
                 <div><label class="block text-sm font-medium text-gray-700">Nº Conta</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Nº Conta" required></div>
@@ -91,7 +93,7 @@
                 <div><label class="block text-sm font-medium text-gray-700">Responsável</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Responsavel" required><option value="Vinícius">Vinícius</option><option value="Lucas">Lucas</option></select></div>
                 <div><label class="block text-sm font-medium text-gray-700">Contestação</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação"><option value="NÃO">Não</option><option value="SIM">Sim</option></select></div>
                 <div><label class="block text-sm font-medium text-gray-700">Observação</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Obs"></div>
-                <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium"><span>Adicionar</span></button>
+                <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">Adicionar</button>
             </form>
         </div>
 
@@ -100,7 +102,9 @@
                 <h2 class="text-2xl font-semibold">Faturas Registradas</h2>
                 <div class="flex items-center gap-4">
                     <input type="text" id="searchInput" class="block w-full rounded-md border-gray-300 shadow-sm" placeholder="Buscar na tabela...">
-                    <button id="reloadBtn" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"><span>Recarregar</span></button>
+                    <button id="reloadBtn" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all">
+                        <span>Recarregar</span>
+                    </button>
                 </div>
             </div>
             <div id="loading" class="flex flex-col items-center justify-center py-10"><div class="loader"></div></div>
@@ -112,29 +116,47 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3sgTf0QPAMBi-Ry7e7I9e7YJYwvyGafRk8ZLORKcFcKun2o-BzW6PKrmUIVHSOh3p/exec";
         let fullTableData = [];
 
-        function handleData(data) {
+        // Esta função PRECISA ser global para o JSONP funcionar
+        window.handleData = function(data) {
             document.getElementById('loading').classList.add('hidden');
-            fullTableData = data.sort((a, b) => new Date(b.Vencimento) - new Date(a.Vencimento));
-            renderTable(fullTableData);
-        }
+            if (data && Array.isArray(data)) {
+                fullTableData = data.sort((a, b) => new Date(b.Vencimento) - new Date(a.Vencimento));
+                renderTable(fullTableData);
+            } else {
+                console.error("Erro nos dados recebidos:", data);
+                alert("Erro ao carregar faturas. Verifique a planilha.");
+            }
+        };
 
         function loadAndRenderTable() {
             document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('table-container').innerHTML = '';
+            
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
             const script = document.createElement('script');
-            script.src = SCRIPT_URL + "?callback=handleData"; 
+            script.id = 'jsonp-script';
+            script.src = `${SCRIPT_URL}?callback=handleData&t=${new Date().getTime()}`;
+            script.onerror = () => {
+                document.getElementById('loading').classList.add('hidden');
+                alert("Falha de conexão com o Google Script.");
+            };
             document.body.appendChild(script);
         }
 
-        function formatCurrency(v) { return parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function formatCurrency(v) { 
+            return parseFloat(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
+        }
 
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = textarea.scrollHeight + 'px';
+        function autoResize(el) { 
+            el.style.height = 'auto'; 
+            el.style.height = el.scrollHeight + 'px'; 
         }
 
         function renderTable(data) {
             const container = document.getElementById('table-container');
-            if (!data.length) { container.innerHTML = ''; return; }
+            if (!data.length) { container.innerHTML = '<p class="text-center py-10 text-gray-500">Nenhuma fatura encontrada.</p>'; return; }
 
             const columnAlignments = { 'Valor': 'text-right', 'Vencimento': 'text-center', 'Status': 'text-center', 'Analisada': 'text-center', 'Contestação': 'text-center', 'Ações': 'text-center' };
             const headers = Object.keys(data[0]).filter(h => h !== 'rowIndex');
@@ -151,7 +173,7 @@
                 html += `<tr>`;
                 headers.forEach(h => {
                     const align = columnAlignments[h] || 'text-left';
-                    let cellHtml = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${align}">`;
+                    let cellHtml = `<td class="px-6 py-4 text-sm text-gray-700 ${align}">`;
 
                     if (h === 'Ações') {
                         cellHtml += `<div class="grid grid-cols-2 gap-1 w-24 mx-auto">
@@ -163,17 +185,19 @@
                     } else if (h === 'Obs') {
                         cellHtml += `<textarea class="obs-input" data-row-index="${row.rowIndex}" onblur="updateObsField(this)" oninput="autoResize(this)" rows="2">${row[h] || ''}</textarea>`;
                     } else if (h === 'Status') {
-                        const st = String(row[h]).toLowerCase();
+                        const val = String(row[h]);
+                        const st = val.toLowerCase();
                         let cls = st === 'pago' ? 'status-pago' : st === 'enviado' ? 'status-enviado' : 'status-a-vencer';
-                        cellHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}">${row[h]}</span>`;
+                        cellHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}">${val}</span>`;
                     } else if (h === 'Analisada' || h === 'Contestação') {
                         const isSim = String(row[h]).toLowerCase() === 'sim';
                         cellHtml += isSim ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${h === 'Analisada' ? 'status-analisada' : 'status-contestacao'}">Sim</span>` : 'Não';
                     } else if (h === 'Valor') {
                         cellHtml += formatCurrency(row[h]);
                     } else if (h === 'Periodo de Referencia') {
-                        const date = new Date(row[h]);
-                        cellHtml += (date.getTime() && String(row[h]).includes('T')) ? date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace('. DE','') : row[h];
+                        const val = row[h];
+                        const date = new Date(val);
+                        cellHtml += (date.getTime() && String(val).includes('T')) ? date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase().replace('. DE','') : val;
                     } else if (h === 'Vencimento') {
                         const dt = new Date(row[h]);
                         cellHtml += dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
@@ -185,12 +209,22 @@
                 html += `</tr>`;
             });
             container.innerHTML = html + `</tbody></table>`;
-            setTimeout(() => { document.querySelectorAll('textarea').forEach(autoResize); }, 0);
+            
+            // Forçar ajuste de altura das textareas após renderizar
+            setTimeout(() => { document.querySelectorAll('textarea').forEach(autoResize); }, 50);
         }
 
         async function updateObsField(el) {
             el.style.opacity = "0.5";
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update', rowIndex: el.dataset.rowIndex, column: 'Obs', value: el.value }) });
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ action: 'update', rowIndex: el.dataset.rowIndex, column: 'Obs', value: el.value }) 
+                });
+                const item = fullTableData.find(i => i.rowIndex == el.dataset.rowIndex);
+                if(item) item.Obs = el.value;
+            } catch(e) { console.error(e); }
             el.style.opacity = "1";
         }
 
@@ -198,28 +232,45 @@
             const btn = e.target.closest('.action-btn');
             if (!btn) return;
             const { rowIndex, column, value, action } = btn.dataset;
-            if (!confirm("Confirmar ação?")) return;
+            if (!confirm(action === 'delete' ? "Excluir esta fatura?" : `Marcar como ${value}?`)) return;
+            
             btn.disabled = true;
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action, rowIndex, column, value }) });
-            loadAndRenderTable();
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ action, rowIndex, column, value }) 
+                });
+                setTimeout(loadAndRenderTable, 800);
+            } catch (err) {
+                alert("Erro ao processar. Tente recarregar.");
+                btn.disabled = false;
+            }
         }
 
-        invoiceForm.addEventListener('submit', async (e) => {
+        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled = true;
-            const data = Object.fromEntries(new FormData(e.target).entries());
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            e.target.reset();
-            setTimeout(loadAndRenderTable, 1000);
-            submitBtn.disabled = false;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            try {
+                const data = Object.fromEntries(new FormData(e.target).entries());
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                e.target.reset();
+                setTimeout(loadAndRenderTable, 1200);
+            } catch(err) { alert("Erro ao enviar."); }
+            btn.disabled = false;
+            btn.textContent = 'Adicionar';
         });
 
-        reloadBtn.addEventListener('click', loadAndRenderTable);
-        tableContainer.addEventListener('click', handleActionClick);
-        searchInput.addEventListener('input', () => {
-            const term = searchInput.value.toLowerCase();
-            renderTable(fullTableData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(term))));
+        document.getElementById('reloadBtn').addEventListener('click', loadAndRenderTable);
+        document.getElementById('table-container').addEventListener('click', handleActionClick);
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = fullTableData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(term)));
+            renderTable(filtered);
         });
+
         document.addEventListener('DOMContentLoaded', loadAndRenderTable);
     </script>
 </body>
