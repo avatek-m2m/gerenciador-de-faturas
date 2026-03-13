@@ -71,20 +71,28 @@
                 <div><label class="block text-sm font-medium text-gray-700">Valor</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="number" step="0.01" name="Valor" required></div>
                 <div><label class="block text-sm font-medium text-gray-700">Data de Vencimento</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="date" name="Vencimento" required></div>
                 <div><label class="block text-sm font-medium text-gray-700">Status</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Status" required><option value="A vencer">A vencer</option><option value="Enviado">Enviado</option><option value="Pago">Pago</option></select></div>
-                <div><label class="block text-sm font-medium text-gray-700">Mês de Referência</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="Janeiro" required></div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Ano de Referência</label>
-                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Ano" required>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026" selected>2026</option>
-                        <option value="2026">2027</option>
-                        <option value="2026">2028</option>
-                    </select>
+                
+                <div class="grid grid-cols-2 gap-2 lg:col-span-1">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Mês Ref.</label>
+                        <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Periodo de Referencia" placeholder="Janeiro" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ano Ref.</label>
+                        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Ano" required>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div><label class="block text-sm font-medium text-gray-700">Responsável</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Responsavel" required><option value="Lucas Calvo">Lucas Calvo</option><option value="Tatiane Gouvea">Tatiane Gouvea</option><option value="Talita Silva">Talita Silva</option></select></div>
                 <div><label class="block text-sm font-medium text-gray-700">Contestação</label><select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" name="Contestação"><option value="NÃO">Não</option><option value="SIM">Sim</option></select></div>
-                <div class="sm:col-span-2 md:col-span-2"><label class="block text-sm font-medium text-gray-700">Observação</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Obs"></div>
+                <div class="sm:col-span-2 md:col-span-1"><label class="block text-sm font-medium text-gray-700">Observação</label><input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" type="text" name="Obs"></div>
+                
                 <button type="submit" id="submitBtn" class="h-10 flex justify-center items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-bold transition-all">ADICIONAR</button>
             </form>
         </div>
@@ -102,8 +110,7 @@
             
             <div id="loading" class="flex flex-col items-center justify-center py-10"><div class="loader"></div></div>
             
-            <div id="table-container" class="space-y-10">
-                </div>
+            <div id="table-container" class="space-y-10"></div>
         </div>
     </div>
 
@@ -156,7 +163,6 @@
             container.innerHTML = '';
             if (!data.length) return;
 
-            // Agrupar por Operadora
             const groupedData = data.reduce((acc, row) => {
                 const provider = row.Operadora || 'Outros';
                 if (!acc[provider]) acc[provider] = [];
@@ -168,9 +174,7 @@
             const headers = Object.keys(data[0]).filter(h => h !== 'rowIndex');
             headers.push('Ações');
 
-            // Itera sobre cada fornecedor agrupado
             for (const provider in groupedData) {
-                // Ordenar por Status dentro do grupo (A vencer -> Enviado -> Pago)
                 const sortedRows = groupedData[provider].sort((a, b) => {
                     const statusOrder = { "A vencer": 1, "Enviado": 2, "Pago": 3 };
                     return (statusOrder[a.Status] || 99) - (statusOrder[b.Status] || 99);
